@@ -13,6 +13,56 @@
  * limitations under the License.
  */
 
-package stsedp
+package endpoint
 
+import (
+	"context"
+	"github.com/go-kit/kit/endpoint"
+	"sts/pkg/service"
+)
 
+// Endpoints collects all of the endpoints that compose a sts service. It's
+// meant to be used as a helper struct, to collect all of the endpoints into a
+// single parameter.
+type Endpoints struct {
+	AssumeRoleEndpoint endpoint.Endpoint
+}
+
+func MakeStsEndpoints(svc service.Service) Endpoints {
+	assumeroleEdp := makeAssumeRoleEndpoint(svc)
+	return Endpoints{
+		AssumeRoleEndpoint: assumeroleEdp,
+	}
+}
+
+func makeAssumeRoleEndpoint(svc service.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(AssumeRoleRequest)
+		token, err := svc.AssumeRole(ctx, req.RoleQrn)
+		return AssumeRoleResponse{
+			Token: token,
+			Err:   err,
+		}, nil
+	}
+}
+
+// Failer is an interface that should be implemented by response types.
+// Response encoders can check if responses are Failer, and if so if they've
+// failed, and if so encode them using a separate write path based on the error.
+type Failer interface {
+	Failed() error
+}
+
+type AssumeRoleRequest struct {
+	DurationSeconds int64  `json:"duration_seconds"`
+	ExternalId      string `json:"external_id"`
+	Policy          string `json:"policy"`
+	RoleQrn         string `json:"role_qrn"`
+}
+
+type AssumeRoleResponse struct {
+	Token string `json:"token"`
+	Err   error  `json:"err"`
+}
+
+func (r AssumeRoleResponse) Failed() error { return r.Err }
