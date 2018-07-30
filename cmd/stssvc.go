@@ -44,8 +44,8 @@ func main() {
 	)
 
 	go func() {
-		fmt.Println("Starting HTTP server at port 8080")
-		ec <- http.ListenAndServe(":8080", httpHandler)
+		fmt.Println("Starting HTTP server at port 8081")
+		ec <- http.ListenAndServe(":8081", httpHandler)
 	}()
 
 	go func() {

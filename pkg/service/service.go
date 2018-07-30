@@ -15,18 +15,32 @@
 
 package service
 
-import "context"
+import (
+	"context"
+	"fmt"
+	"sts/pkg/client"
+)
 
 type Service interface {
 	AssumeRole(ctx context.Context, role string) (string, error)
 }
 
-type sts struct {}
+type sts struct{}
 
 func NewSts() Service {
 	return &sts{}
 }
 
-func (s *sts) AssumeRole(ctx context.Context, role string) (string, error){
-	return "token", nil
+func (s sts) AssumeRole(ctx context.Context, role string) (string, error) {
+	// Firstly we check the resource-based-policy for the role if it could be assumed
+	err := client.Evaluation(ctx, role)
+	if err != nil {
+		return "", err
+	}
+
+	//todo: attempt to get an id token from issuer
+
+	fmt.Println("evaluation was allowed")
+
+	return "", nil
 }
