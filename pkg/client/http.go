@@ -49,7 +49,7 @@ func init() {
 	issuerurl = os.Getenv(EnvIssuerURL)
 }
 
-func Evaluation(ctx context.Context, role string) error {
+func Evaluate(ctx context.Context, role string) error {
 	//ctx, cancel := context.WithCancel(ctx)
 	//defer cancel()
 
@@ -77,5 +77,10 @@ func Evaluation(ctx context.Context, role string) error {
 		return errors.New("evaluation was denied")
 	}
 
+	return nil
+}
+
+func Issue(ctx context.Context) error {
+	//todo: ask issuer instance for id token
 	return nil
 }

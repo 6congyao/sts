@@ -33,12 +33,16 @@ func NewSts() Service {
 
 func (s sts) AssumeRole(ctx context.Context, role string) (string, error) {
 	// Firstly we check the resource-based-policy for the role if it could be assumed
-	err := client.Evaluation(ctx, role)
+	err := client.Evaluate(ctx, role)
 	if err != nil {
 		return "", err
 	}
 
-	//todo: attempt to get an id token from issuer
+	//Attempt to get an id token from issuer
+	err = client.Issue(ctx)
+	if err != nil {
+		return "", err
+	}
 
 	fmt.Println("evaluation was allowed")
 
