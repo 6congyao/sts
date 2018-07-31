@@ -39,7 +39,7 @@ func main() {
 
 	var (
 		service     = service.NewSts()
-		endpoints   = endpoint.MakeStsEndpoints(service)
+		endpoints   = endpoint.MakeStsEndpoints(service, logger)
 		httpHandler = transport.NewHttpHandler(endpoints, logger)
 	)
 

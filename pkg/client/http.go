@@ -36,7 +36,7 @@ const (
 var pst *pester.Client
 var evaurl string
 var issuerurl string
-var payload = &[]map[string]interface{}{
+var defaultPayload = &[]map[string]interface{}{
 	{"action": "sts:AssumeRole", "principal": "ec2.qingcloud.com"},
 }
 
@@ -49,9 +49,17 @@ func init() {
 	issuerurl = os.Getenv(EnvIssuerURL)
 }
 
-func Evaluate(ctx context.Context, role string) error {
+func Evaluate(ctx context.Context, role, principal string) error {
 	//ctx, cancel := context.WithCancel(ctx)
 	//defer cancel()
+	var payload *[]map[string]interface{}
+	if principal == "" {
+		payload = defaultPayload
+	} else {
+		payload = &[]map[string]interface{}{
+			{"action": "sts:AssumeRole", "principal": principal},
+		}
+	}
 
 	evaRequestContext := map[string]interface{}{
 		"payload": payload,

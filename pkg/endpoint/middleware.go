@@ -13,38 +13,24 @@
  * limitations under the License.
  */
 
-package service
+package endpoint
 
 import (
 	"context"
-	"fmt"
-	"sts/pkg/client"
+	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
+	"time"
 )
 
-type Service interface {
-	AssumeRole(ctx context.Context, role, principal string) (string, error)
-}
-
-type sts struct{}
-
-func NewSts() Service {
-	return &sts{}
-}
-
-func (s sts) AssumeRole(ctx context.Context, role, principal string) (string, error) {
-	// Firstly we check the resource-based-policy for the role if it could be assumed
-	err := client.Evaluate(ctx, role, principal)
-	if err != nil {
-		return "", err
+func LoggingMiddleware(logger log.Logger) endpoint.Middleware {
+	return func(next endpoint.Endpoint) endpoint.Endpoint {
+		return func(ctx context.Context, req interface{}) (res interface{}, err error) {
+			defer func(begin time.Time) {
+				if err != nil {
+					logger.Log("transport_error", err, "took", time.Since(begin))
+				}
+			}(time.Now())
+			return next(ctx, req)
+		}
 	}
-
-	//Attempt to get an id token from issuer
-	err = client.Issue(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	fmt.Println("evaluation was allowed")
-
-	return "", nil
 }

@@ -19,6 +19,7 @@ import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
 	"sts/pkg/service"
+	"github.com/go-kit/kit/log"
 )
 
 // Endpoints collects all of the endpoints that compose a sts service. It's
@@ -28,8 +29,9 @@ type Endpoints struct {
 	AssumeRoleEndpoint endpoint.Endpoint
 }
 
-func MakeStsEndpoints(svc service.Service) Endpoints {
+func MakeStsEndpoints(svc service.Service, logger log.Logger) Endpoints {
 	assumeroleEdp := makeAssumeRoleEndpoint(svc)
+	assumeroleEdp = LoggingMiddleware(log.With(logger, "method", "AssumeRole"))(assumeroleEdp)
 	return Endpoints{
 		AssumeRoleEndpoint: assumeroleEdp,
 	}
@@ -38,7 +40,10 @@ func MakeStsEndpoints(svc service.Service) Endpoints {
 func makeAssumeRoleEndpoint(svc service.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(AssumeRoleRequest)
-		token, err := svc.AssumeRole(ctx, req.RoleQrn)
+		token, err := svc.AssumeRole(ctx, req.RoleQrn, req.ExternalId)
+		if err != nil {
+			return nil, err
+		}
 		return AssumeRoleResponse{
 			Token: token,
 			Err:   err,
@@ -65,4 +70,4 @@ type AssumeRoleResponse struct {
 	Err   error  `json:"err"`
 }
 
-func (r AssumeRoleResponse) Failed() error { return r.Err }
+func (r AssumeRoleResponse) Failed() error { return r.Err}
