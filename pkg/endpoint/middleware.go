@@ -17,8 +17,10 @@ package endpoint
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/metrics"
 	"time"
 )
 
@@ -29,6 +31,17 @@ func LoggingMiddleware(logger log.Logger) endpoint.Middleware {
 				if err != nil {
 					logger.Log("transport_error", err, "took", time.Since(begin))
 				}
+			}(time.Now())
+			return next(ctx, req)
+		}
+	}
+}
+
+func InstrumentingMiddleware(duration metrics.Histogram) endpoint.Middleware {
+	return func(next endpoint.Endpoint) endpoint.Endpoint {
+		return func(ctx context.Context, req interface{}) (res interface{}, err error) {
+			defer func(begin time.Time) {
+				duration.With("success", fmt.Sprint(err == nil)).Observe(time.Since(begin).Seconds())
 			}(time.Now())
 			return next(ctx, req)
 		}

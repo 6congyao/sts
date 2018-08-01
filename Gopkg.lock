@@ -6,6 +6,7 @@
   packages = [
     "endpoint",
     "log",
+    "metrics",
     "transport/http"
   ]
   revision = "ca4112baa34cb55091301bdc13b1420a122b1b9e"
@@ -41,9 +42,15 @@
   packages = ["."]
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8fcebb0c03aa45a44791f93b3fdce6975dad3859927ad0aa9c55527ee8a4fda7"
+  inputs-digest = "eba33a4d9a2be3f531e19a7f49ae529ecbbc80e82c3450ae6b115d83b4ca0f74"
   solver-name = "gps-cdcl"
   solver-version = 1
