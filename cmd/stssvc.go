@@ -22,10 +22,15 @@ import (
 	"fmt"
 	"net/http"
 	"os/signal"
+	"strings"
 	"sts/pkg/endpoint"
 	"sts/pkg/service"
 	"sts/pkg/transport"
 	"syscall"
+)
+
+const (
+	EnvPort = "STS_PORT"
 )
 
 func main() {
@@ -44,8 +49,17 @@ func main() {
 	)
 
 	go func() {
-		fmt.Println("Starting HTTP server at port 8081...")
-		ec <- http.ListenAndServe(":8081", httpHandler)
+		port := os.Getenv(EnvPort)
+
+		if port == "" {
+			port = ":9021"
+		} else {
+			if !strings.HasPrefix(port, ":") {
+				port = ":" + port
+			}
+		}
+		fmt.Println("Starting HTTP server at port", port)
+		ec <- http.ListenAndServe(port, httpHandler)
 	}()
 
 	go func() {

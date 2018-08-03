@@ -33,21 +33,21 @@ func NewHttpHandler(endpoints endpoint.Endpoints, logger log.Logger) http.Handle
 	}
 	r.Methods("POST").Path("/role").Handler(httptransport.NewServer(
 		endpoints.AssumeRoleEndpoint,
-		DecodeHTTPAssumeRoleRequest,
-		EncodeHTTPAssumeRoleResponse,
+		decodeHTTPAssumeRoleRequest,
+		encodeHTTPGenericResponse,
 		options...,
 	))
 	return r
 }
 
-func DecodeHTTPAssumeRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeHTTPAssumeRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req endpoint.AssumeRoleRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 
 	return req, err
 }
 
-func EncodeHTTPAssumeRoleResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+func encodeHTTPGenericResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	if f, ok := response.(endpoint.Failer); ok && f.Failed() != nil {
 		errorEncoder(ctx, f.Failed(), w)
 		return nil

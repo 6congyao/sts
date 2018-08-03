@@ -2,7 +2,7 @@
 
 An OIDC based token issuer
 
-##Installation
+## Installation
 
 On MacOS you can install or upgrade to the latest released version with Homebrew:
 ```sh
@@ -28,8 +28,10 @@ $ dep ensure
 
 Prepare the envs :
 ```sh
+$ STS_PORT=<port> (Default: 9021)
 $ STS_EVA_URL=<eva_url>
 $ STS_ISSUER_URL=<issuer_url>
+$ export STS_PORT
 $ export STS_EVA_URL
 $ export STS_ISSUER_URL
 ```
