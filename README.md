@@ -10,7 +10,7 @@ $ brew install dep
 $ brew upgrade dep
 ```
 
-On other platforms you can use the `install.sh` script:
+On other platforms you can use the `_install.sh_` script:
 
 ```sh
 $ curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
@@ -23,7 +23,7 @@ $ git clone <repository>
 
 Run `dep` and enjoy:
 ```sh
-$ dep ensure
+$ dep ensure -vendor-only
 ```
 
 Prepare the envs :
@@ -31,7 +31,11 @@ Prepare the envs :
 $ STS_PORT=<port> (Default: 9021)
 $ STS_EVA_URL=<eva_url>
 $ STS_ISSUER_URL=<issuer_url>
+$ STS_ISSUER_CLIENT_ID=<issuer_client_id>
+$ STS_ISSUER_CLIENT_SECRET=<issuer_client_secret>
 $ export STS_PORT
 $ export STS_EVA_URL
 $ export STS_ISSUER_URL
+$ export STS_ISSUER_CLIENT_ID
+$ export STS_ISSUER_CLIENT_SECRET
 ```
