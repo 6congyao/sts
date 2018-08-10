@@ -22,7 +22,7 @@ import (
 )
 
 type Service interface {
-	AssumeRole(ctx context.Context, role, principal string) (string, error)
+	AssumeRole(ctx context.Context, role, principal string, instanceProfile map[string]string) (string, error)
 }
 
 type sts struct{}
@@ -31,7 +31,7 @@ func NewSts() Service {
 	return &sts{}
 }
 
-func (s sts) AssumeRole(ctx context.Context, role, principal string) (string, error) {
+func (s sts) AssumeRole(ctx context.Context, role, principal string, instanceProfile map[string]string) (string, error) {
 	// Firstly we check the resource-based-policy for the role if it could be assumed
 	err := client.Evaluate(ctx, role, principal)
 	if err != nil {
@@ -39,12 +39,12 @@ func (s sts) AssumeRole(ctx context.Context, role, principal string) (string, er
 	}
 
 	//Attempt to get an id token from issuer
-	err = client.Issue(ctx)
-	if err != nil {
-		return "", err
+	token, err1 := client.Issue(ctx, instanceProfile)
+	if err1 != nil {
+		return "", err1
 	}
 
 	fmt.Println("evaluation was allowed")
 
-	return "", nil
+	return token, nil
 }

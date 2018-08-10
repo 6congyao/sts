@@ -16,26 +16,32 @@
 package client
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
-	"github.com/pkg/errors"
-	"io"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"sts/utils/pester"
+	"net/url"
+	"net/http"
+	"strings"
+	"io/ioutil"
+	"github.com/pkg/errors"
+	"bytes"
+	"fmt"
+	"io"
+	"encoding/json"
 )
 
 const (
 	EnvEvaURL    = "STS_EVA_URL"
 	EnvIssuerURL = "STS_ISSUER_URL"
+	EnvIssuerClientId = "STS_ISSUER_CLIENT_ID"
+	EnvIssuerClientSecret = "STS_ISSUER_CLIENT_SECRET"
 )
 
 var pst *pester.Client
 var evaurl string
-var issuerurl string
+var issuerUrl string
+var issuerCilentId string
+var issuerClientSecret string
 var defaultPayload = &[]map[string]interface{}{
 	{"action": "sts:AssumeRole", "principal": "ec2.qingcloud.com"},
 }
@@ -46,7 +52,9 @@ func init() {
 	pst.KeepLog = true
 
 	evaurl = os.Getenv(EnvEvaURL)
-	issuerurl = os.Getenv(EnvIssuerURL)
+	issuerUrl = os.Getenv(EnvIssuerURL)
+	issuerCilentId = os.Getenv(EnvIssuerClientId)
+	issuerClientSecret = os.Getenv(EnvIssuerClientSecret)
 }
 
 func Evaluate(ctx context.Context, role, principal string) error {
@@ -88,7 +96,41 @@ func Evaluate(ctx context.Context, role, principal string) error {
 	return nil
 }
 
-func Issue(ctx context.Context) error {
-	//todo: ask issuer instance for id token
-	return nil
+func Issue(ctx context.Context, instanceProfile map[string]string) (string, error) {
+
+	data := url.Values{}
+	data.Add("grant_type", "client_credentials")
+	data.Add("client_id", issuerCilentId)
+	data.Add("client_secret", issuerClientSecret)
+	data.Add("scope", "openid")
+
+	var r http.Request
+
+	r.ParseForm()
+	r.Form = data
+
+	req, err1 := http.NewRequest(http.MethodPost, issuerUrl, strings.NewReader(r.Form.Encode()))
+	if err1 != nil {
+		return "", err1
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	for k, v := range instanceProfile {
+		req.Header.Set(k, v)
+	}
+
+	res, err2 := pst.Do(req)
+	if err2 != nil {
+		return "", err2
+	}
+	defer res.Body.Close()
+	//io.Copy(ioutil.Discard, res.Body)
+
+	if res.StatusCode != http.StatusOK {
+		return "", errors.New("issuer is invalid")
+	}
+	bodyBytes, err2 := ioutil.ReadAll(res.Body)
+	token := string(bodyBytes)
+
+	return token, nil
 }

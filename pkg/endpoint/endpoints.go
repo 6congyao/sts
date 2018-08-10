@@ -42,7 +42,7 @@ func MakeStsEndpoints(svc service.Service, logger log.Logger) Endpoints {
 func makeAssumeRoleEndpoint(svc service.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(AssumeRoleRequest)
-		token, err := svc.AssumeRole(ctx, req.RoleQrn, req.ExternalId)
+		token, err := svc.AssumeRole(ctx, req.RoleQrn, req.ExternalId, req.InstanceProfile)
 		if err != nil {
 			return nil, err
 		}
@@ -61,15 +61,24 @@ type Failer interface {
 }
 
 type AssumeRoleRequest struct {
-	DurationSeconds int64  `json:"duration_seconds"`
-	ExternalId      string `json:"external_id"`
-	Policy          string `json:"policy"`
-	RoleQrn         string `json:"role_qrn"`
+	DurationSeconds int64  				`json:"duration_seconds"`
+	ExternalId      string 				`json:"external_id"`
+	Policy          string 				`json:"policy"`
+	RoleQrn         string 				`json:"role_qrn"`
+	InstanceProfile map[string]string	`json:"instance_profile"`
 }
 
 type AssumeRoleResponse struct {
 	Token string `json:"token"`
 	Err   error  `json:"err"`
+}
+
+type Token struct {
+	AccessToken			string 	`json:"access_token"`
+	IdToken				string 	`json:"id_token"`
+	RefreshToken 		string 	`json:"refresh_token"`
+	RefreshExpiresIn	int 	`json:"refresh_expires_in"`
+	TokenType			string 	`json:"token_type"`
 }
 
 func (r AssumeRoleResponse) Failed() error { return r.Err }

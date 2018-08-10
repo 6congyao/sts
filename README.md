@@ -23,7 +23,7 @@ $ git clone <repository>
 
 Run `dep` and enjoy:
 ```sh
-$ dep ensure -vendor-only
+$ dep ensure
 ```
 
 Prepare the envs :
