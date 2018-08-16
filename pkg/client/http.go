@@ -90,7 +90,7 @@ func Evaluate(ctx context.Context, role, principal string) error {
 	io.Copy(ioutil.Discard, res.Body)
 
 	if res.StatusCode != http.StatusOK {
-		return errors.New("evaluation was denied")
+		return errors.New(fmt.Sprintf("evaluation was denied. [%d]", res.StatusCode))
 	}
 
 	return nil
