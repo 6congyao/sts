@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+OUTPUT=${1:-bin/stssvc}
+echo "Building sts ..."
+mkdir -p bin
+
+curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+dep ensure -v
+
+go build -o $OUTPUT cmd/stssvc.go
