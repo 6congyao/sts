@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"io"
 	"encoding/json"
+	"sts/utils/logger"
 )
 
 const (
@@ -83,13 +84,14 @@ func Evaluate(ctx context.Context, role, principal string) error {
 	res, err := pst.Post(evaurl, "application/json", bytes.NewReader(byteRequest))
 
 	if err != nil {
-		fmt.Println("evaluation error:", pst.LogString())
+		logger.Error.Printf("evaluation error: %s", pst.LogString())
 		return err
 	}
 	defer res.Body.Close()
 	io.Copy(ioutil.Discard, res.Body)
 
 	if res.StatusCode != http.StatusOK {
+		logger.Debug.Printf("Evaluate was denied, request contest: %s", string(byteRequest))
 		return errors.New(fmt.Sprintf("evaluation was denied. [%d]", res.StatusCode))
 	}
 

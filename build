@@ -7,7 +7,7 @@ if command -v dep >/dev/null 2>&1; then
   echo 'exists dep' 
 else 
   echo 'no exists dep' 
-  #curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+  curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 fi
 dep ensure -v
 
