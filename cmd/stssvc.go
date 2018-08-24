@@ -67,5 +67,5 @@ func main() {
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		ec <- fmt.Errorf("%s", <-c)
 	}()
-	fmt.Println(<-ec)
+	loggerUtils.Error.Print(<-ec)
 }
