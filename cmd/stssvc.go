@@ -18,7 +18,6 @@ package main
 import (
 	"github.com/go-kit/kit/log"
 	"os"
-
 	"fmt"
 	"net/http"
 	"os/signal"
@@ -27,6 +26,7 @@ import (
 	"sts/pkg/service"
 	"sts/pkg/transport"
 	"syscall"
+	loggerUtils "sts/utils/logger"
 )
 
 const (
@@ -58,7 +58,7 @@ func main() {
 				port = ":" + port
 			}
 		}
-		fmt.Println("Starting HTTP server at port", port)
+		loggerUtils.Info.Printf("Starting HTTP server at port %s", port)
 		ec <- http.ListenAndServe(port, httpHandler)
 	}()
 
@@ -67,5 +67,5 @@ func main() {
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		ec <- fmt.Errorf("%s", <-c)
 	}()
-	fmt.Println(<-ec)
+	loggerUtils.Error.Print(<-ec)
 }

@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"io"
 	"encoding/json"
+	"sts/utils/logger"
 )
 
 const (
@@ -77,19 +78,22 @@ func Evaluate(ctx context.Context, role, principal string) error {
 
 	byteRequest, err := json.Marshal(evaRequestContext)
 	if err != nil {
+		logger.Error.Print(err)
 		return err
 	}
 
+	logger.Debug.Printf("Evaluate request contest: %s", string(byteRequest))
 	res, err := pst.Post(evaurl, "application/json", bytes.NewReader(byteRequest))
 
 	if err != nil {
-		fmt.Println("evaluation error:", pst.LogString())
+		logger.Error.Printf("evaluation error: %s", err)
 		return err
 	}
 	defer res.Body.Close()
 	io.Copy(ioutil.Discard, res.Body)
 
 	if res.StatusCode != http.StatusOK {
+		logger.Debug.Printf("Evaluate was denied, request contest: %s", string(byteRequest))
 		return errors.New(fmt.Sprintf("evaluation was denied. [%d]", res.StatusCode))
 	}
 
@@ -121,13 +125,15 @@ func Issue(ctx context.Context, instanceProfile map[string]string) (string, erro
 
 	res, err2 := pst.Do(req)
 	if err2 != nil {
+		logger.Error.Printf("Ask issuer error, instance profile: %s, %s", instanceProfile, err2)
 		return "", err2
 	}
 	defer res.Body.Close()
 	//io.Copy(ioutil.Discard, res.Body)
 
 	if res.StatusCode != http.StatusOK {
-		return "", errors.New("issuer is invalid")
+		logger.Debug.Printf("Ask issuer was invalid, [%d]", res.StatusCode)
+		return "", errors.New(fmt.Sprintf("Ask issuer was invalid, [%d]", res.StatusCode))
 	}
 	bodyBytes, err2 := ioutil.ReadAll(res.Body)
 	token := string(bodyBytes)

@@ -17,8 +17,8 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"sts/pkg/client"
+	"sts/utils/logger"
 )
 
 type Service interface {
@@ -38,13 +38,14 @@ func (s sts) AssumeRole(ctx context.Context, role, principal string, instancePro
 		return "", err
 	}
 
+	logger.Info.Printf("evaluation was allowed")
+
 	//Attempt to get an id token from issuer
 	token, err1 := client.Issue(ctx, instanceProfile)
 	if err1 != nil {
 		return "", err1
 	}
 
-	fmt.Println("evaluation was allowed")
 
 	return token, nil
 }

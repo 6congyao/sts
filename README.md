@@ -33,10 +33,12 @@ STS_EVA_URL=<eva_url>
 STS_ISSUER_URL=<issuer_url>
 STS_ISSUER_CLIENT_ID=<issuer_client_id>
 STS_ISSUER_CLIENT_SECRET=<issuer_client_secret>
+STS_LOG_LEVEL=<debug/info/warn/error>
 
 export STS_PORT
 export STS_EVA_URL
 export STS_ISSUER_URL
 export STS_ISSUER_CLIENT_ID
 export STS_ISSUER_CLIENT_SECRET
+export STS_LOG_LEVEL
 ```
